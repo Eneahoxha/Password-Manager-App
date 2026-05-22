@@ -8,3 +8,4 @@ coverage/
 frontend/.vite/
 backend/node_modules/
 backend/prisma/migrations/
+.vscode/
