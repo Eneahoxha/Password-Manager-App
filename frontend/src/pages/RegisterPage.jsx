@@ -1,0 +1,90 @@
+import { useMemo, useState } from 'react';
+import { CheckCircle2, LockKeyhole, XCircle } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader } from '../components/ui/Card';
+import Input from '../components/ui/Input';
+import Label from '../components/ui/Label';
+import Button from '../components/ui/Button';
+import Alert from '../components/ui/Alert';
+import { useAuth } from '../context/AuthContext';
+
+function checkPasswordRequirement(password, pattern) {
+  return pattern.test(password);
+}
+
+export default function RegisterPage() {
+  const { register } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+
+  const requirements = useMemo(() => ([
+    { label: 'Minimo 12 caratteri', ok: password.length >= 12 },
+    { label: 'Una maiuscola', ok: checkPasswordRequirement(password, /[A-Z]/) },
+    { label: 'Un numero', ok: checkPasswordRequirement(password, /\d/) },
+    { label: 'Un simbolo', ok: checkPasswordRequirement(password, /[^A-Za-z0-9]/) }
+  ]), [password]);
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setError('');
+    setMessage('');
+
+    if (password !== confirmPassword) {
+      setError('Le password non coincidono.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await register(email, password);
+      setMessage('Account creato con successo. Ora puoi effettuare il login.');
+      setTimeout(() => navigate('/login'), 1200);
+    } catch (registerError) {
+      setError(registerError?.response?.data?.error || 'Registrazione non riuscita.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="page-shell">
+      <Card className="auth-card" style={{ width: 'min(760px, 100%)' }}>
+        <CardHeader>
+          <div className="status-row"><span className="badge"><LockKeyhole size={14} /> Registrazione</span></div>
+          <h2>Crea il tuo vault personale</h2>
+          <p>La master password deve rispettare requisiti forti e resterà solo sotto il tuo controllo nel browser.</p>
+        </CardHeader>
+        <CardContent>
+          <form className="drawer-form" onSubmit={handleSubmit}>
+            <div className="field"><Label htmlFor="register-email">Email</Label><Input id="register-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></div>
+            <div className="field"><Label htmlFor="register-password">Master password</Label><Input id="register-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required /></div>
+            <div className="field"><Label htmlFor="confirm-password">Conferma password</Label><Input id="confirm-password" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required /></div>
+            <div className="mini-panel">
+              <div className="hint" style={{ marginBottom: 10 }}>Requisiti password</div>
+              <div className="drawer-form" style={{ gap: 8 }}>
+                {requirements.map((requirement) => (
+                  <div key={requirement.label} className="status-row" style={{ justifyContent: 'space-between' }}>
+                    <span>{requirement.label}</span>
+                    {requirement.ok ? <CheckCircle2 size={18} color="var(--success)" /> : <XCircle size={18} color="var(--danger)" />}
+                  </div>
+                ))}
+              </div>
+            </div>
+            {error ? <Alert variant="destructive">{error}</Alert> : null}
+            {message ? <Alert>{message}</Alert> : null}
+            <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? 'Creazione...' : 'Crea account'}</Button>
+          </form>
+        </CardContent>
+        <div className="auth-links">
+          <span className="hint">Hai già un account?</span>
+          <Link className="button link" to="/login">Accedi</Link>
+        </div>
+      </Card>
+    </div>
+  );
+}

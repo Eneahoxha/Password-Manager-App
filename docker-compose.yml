@@ -1,0 +1,48 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    command: npm run dev
+    ports:
+      - "3002:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      FRONTEND_URL: http://localhost:5174
+      JWT_SECRET: dev-secret-access
+      JWT_REFRESH_SECRET: dev-secret-refresh
+      BCRYPT_SALT_ROUNDS: 12
+      DATABASE_URL: postgresql://securevault:securevault@db:5432/securevault
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+    ports:
+      - "5174:5173"
+    environment:
+      VITE_API_BASE_URL: http://localhost:3002/api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:15-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: securevault
+      POSTGRES_USER: securevault
+      POSTGRES_PASSWORD: securevault
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

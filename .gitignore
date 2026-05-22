@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+coverage/
+.env
+.env.*
+!.env.example
+frontend/.vite/
+backend/node_modules/
+backend/prisma/migrations/
