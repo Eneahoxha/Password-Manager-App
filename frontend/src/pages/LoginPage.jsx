@@ -95,7 +95,6 @@ export default function LoginPage() {
           <div className="auth-links">
             <span className="hint">Nessun account ancora registrato?</span>
             <Link className="button link" to="/register">Crea account</Link>
-            <Link className="button link" to="/verify-email">Verifica email</Link>
             <Link className="button link" to="/forgot">Hai dimenticato la password?</Link>
           </div>
         </Card>

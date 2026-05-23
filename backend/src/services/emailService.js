@@ -1,36 +1,68 @@
 const nodemailer = require('nodemailer');
 const { env } = require('../config/environment');
 
-const emailEnabled = env.NODE_ENV !== 'test' && Boolean(env.SMTP_HOST);
-const transporter = emailEnabled
-  ? nodemailer.createTransport({
+let transporterPromise = null;
+
+async function getTransporter() {
+  if (env.NODE_ENV === 'test') {
+    return null;
+  }
+
+  if (env.SMTP_HOST) {
+    return nodemailer.createTransport({
       host: env.SMTP_HOST,
       port: Number(env.SMTP_PORT || 587),
       secure: env.SMTP_SECURE === 'true',
       auth: env.SMTP_USER && env.SMTP_PASS ? { user: env.SMTP_USER, pass: env.SMTP_PASS } : undefined
-    })
-  : null;
+    });
+  }
+
+  if (env.NODE_ENV === 'production') {
+    throw new Error('SMTP non configurato. Imposta SMTP_HOST/SMTP_USER/SMTP_PASS.');
+  }
+
+  if (!transporterPromise) {
+    transporterPromise = nodemailer.createTestAccount().then((account) => nodemailer.createTransport({
+      host: account.smtp.host,
+      port: account.smtp.port,
+      secure: account.smtp.secure,
+      auth: { user: account.user, pass: account.pass }
+    }));
+  }
+
+  return transporterPromise;
+}
 
 async function sendMail(message) {
+  const transporter = await getTransporter();
   if (!transporter) {
     return { skipped: true };
   }
 
-  return transporter.sendMail(message);
+  const info = await transporter.sendMail(message);
+  const previewUrl = nodemailer.getTestMessageUrl(info);
+  if (previewUrl) {
+    console.log(`SMTP preview: ${previewUrl}`);
+  }
+
+  return info;
 }
 
 async function sendVerificationEmail(to, token) {
+  const verificationUrl = `${env.BACKEND_PUBLIC_URL.replace(/\/$/, '')}/api/auth/verify-email?email=${encodeURIComponent(to)}&token=${encodeURIComponent(token)}`;
   const html = `
     <h2>Verifica email SecureVault</h2>
-    <p>Usa questo codice per verificare la tua email:</p>
-    <p style="font-size:20px;font-weight:700;letter-spacing:2px;">${token}</p>
-    <p>Il codice di verifica scade tra 24 ore.</p>
+    <p>Clicca il pulsante sotto per verificare immediatamente la tua email:</p>
+    <p><a href="${verificationUrl}" style="display:inline-block;padding:12px 18px;background:#2f66ff;color:#fff;text-decoration:none;border-radius:10px;font-weight:700;">Verifica email</a></p>
+    <p>Se il pulsante non funziona, copia questo link nel browser:</p>
+    <p>${verificationUrl}</p>
+    <p>Il link di verifica scade tra 24 ore.</p>
   `;
   await sendMail({
     from: env.EMAIL_FROM,
     to,
     subject: 'SecureVault - verifica la tua email',
-    text: `Codice verifica: ${token}. Scade tra 24 ore.`,
+    text: `Verifica la tua email con questo link: ${verificationUrl}. Scade tra 24 ore.`,
     html
   });
 }

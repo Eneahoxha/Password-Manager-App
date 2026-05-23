@@ -7,6 +7,7 @@ import Label from '../components/ui/Label';
 import Button from '../components/ui/Button';
 import Alert from '../components/ui/Alert';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 
 function checkPasswordRequirement(password, pattern) {
   return pattern.test(password);
@@ -43,13 +44,15 @@ export default function RegisterPage() {
     try {
       const resp = await register(email, password);
       const recoveryCode = resp.recoveryCode;
-      setMessage('Account creato con successo. Scarica il codice di recupero e conservalo in sicurezza.');
+      setMessage('Account creato con successo. Scarica il codice di recupero e controlla la tua email per il link di verifica.');
 
       // trigger recovery PDF download from server
       try {
-        const url = `/api/auth/recovery-pdf?email=${encodeURIComponent(email)}&code=${encodeURIComponent(recoveryCode)}`;
+        const url = new URL('auth/recovery-pdf', `${api.defaults.baseURL.replace(/\/$/, '')}/`);
+        url.searchParams.set('email', email);
+        url.searchParams.set('code', recoveryCode);
         const a = document.createElement('a');
-        a.href = url;
+        a.href = url.toString();
         a.download = `recovery-${email}.pdf`;
         document.body.appendChild(a);
         a.click();

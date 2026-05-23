@@ -61,6 +61,20 @@ router.post('/verify-email', recoveryLimiter, validate(verifyEmailSchema), async
   }
 });
 
+router.get('/verify-email', async (req, res, next) => {
+  try {
+    const { email, token } = req.query;
+    if (!email || !token) {
+      return res.redirect(`${env.FRONTEND_URL.replace(/\/$/, '')}/login?verified=error`);
+    }
+
+    await authService.verifyEmail(String(email), String(token));
+    return res.redirect(`${env.FRONTEND_URL.replace(/\/$/, '')}/login?verified=1`);
+  } catch (error) {
+    return res.redirect(`${env.FRONTEND_URL.replace(/\/$/, '')}/login?verified=error`);
+  }
+});
+
 router.post('/resend-verification', recoveryLimiter, validate(emailOnlySchema), async (req, res, next) => {
   try {
     const { email } = req.body;

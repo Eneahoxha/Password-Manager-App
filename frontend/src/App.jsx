@@ -3,7 +3,6 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPassword';
 import ResetPasswordPage from './pages/ResetPassword';
-import VerifyEmailPage from './pages/VerifyEmail';
 import DashboardPage from './pages/DashboardPage';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
@@ -26,7 +25,6 @@ export default function App() {
       <Route path="/register" element={<AuthRedirect><RegisterPage /></AuthRedirect>} />
       <Route path="/forgot" element={<AuthRedirect><ForgotPasswordPage /></AuthRedirect>} />
       <Route path="/reset" element={<AuthRedirect><ResetPasswordPage /></AuthRedirect>} />
-      <Route path="/verify-email" element={<AuthRedirect><VerifyEmailPage /></AuthRedirect>} />
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardPage />} />
       </Route>
