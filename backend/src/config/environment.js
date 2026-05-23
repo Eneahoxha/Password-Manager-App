@@ -23,7 +23,7 @@ env.SMTP_PORT = process.env.SMTP_PORT || '';
 env.SMTP_USER = process.env.SMTP_USER || '';
 env.SMTP_PASS = process.env.SMTP_PASS || '';
 env.SMTP_SECURE = process.env.SMTP_SECURE || 'false';
-env.EMAIL_FROM = process.env.EMAIL_FROM || 'no-reply@securevault.local';
+env.EMAIL_FROM = process.env.EMAIL_FROM || env.SMTP_USER || 'no-reply@securevault.local';
 env.BACKEND_PUBLIC_URL = process.env.BACKEND_PUBLIC_URL || 'http://localhost:3002';
 
 module.exports = { env };

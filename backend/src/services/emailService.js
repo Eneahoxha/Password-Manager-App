@@ -17,20 +17,7 @@ async function getTransporter() {
     });
   }
 
-  if (env.NODE_ENV === 'production') {
-    throw new Error('SMTP non configurato. Imposta SMTP_HOST/SMTP_USER/SMTP_PASS.');
-  }
-
-  if (!transporterPromise) {
-    transporterPromise = nodemailer.createTestAccount().then((account) => nodemailer.createTransport({
-      host: account.smtp.host,
-      port: account.smtp.port,
-      secure: account.smtp.secure,
-      auth: { user: account.user, pass: account.pass }
-    }));
-  }
-
-  return transporterPromise;
+  throw new Error('SMTP non configurato. Imposta SMTP_HOST/SMTP_USER/SMTP_PASS nel file .env.');
 }
 
 async function sendMail(message) {
