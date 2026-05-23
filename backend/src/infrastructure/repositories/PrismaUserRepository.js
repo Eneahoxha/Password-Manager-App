@@ -14,6 +14,10 @@ class PrismaUserRepository {
   async create(data) {
     return prisma.user.create({ data });
   }
+
+  async update(id, changes) {
+    return prisma.user.update({ where: { id }, data: changes });
+  }
 }
 
 module.exports = PrismaUserRepository;

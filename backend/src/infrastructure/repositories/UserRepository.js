@@ -18,6 +18,13 @@ class UserRepository {
       id: randomUUID(),
       email: data.email,
       passwordHash: data.passwordHash,
+      emailVerified: data.emailVerified || false,
+      recoveryCodeHash: data.recoveryCodeHash || null,
+      recoveryCodeCreatedAt: data.recoveryCodeCreatedAt || null,
+      emailVerificationTokenHash: data.emailVerificationTokenHash || null,
+      emailVerificationSentAt: data.emailVerificationSentAt || null,
+      forgotOtpHash: data.forgotOtpHash || null,
+      forgotOtpCreatedAt: data.forgotOtpCreatedAt || null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -25,6 +32,17 @@ class UserRepository {
     store.users.push(user);
     writeStore(store);
     return user;
+  }
+
+  async update(id, changes) {
+    const store = readStore();
+    const idx = store.users.findIndex((u) => u.id === id);
+    if (idx === -1) return null;
+    const user = store.users[idx];
+    const updated = { ...user, ...changes, updatedAt: new Date().toISOString() };
+    store.users[idx] = updated;
+    writeStore(store);
+    return updated;
   }
 }
 

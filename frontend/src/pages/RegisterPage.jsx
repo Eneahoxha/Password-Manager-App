@@ -41,8 +41,23 @@ export default function RegisterPage() {
 
     setIsSubmitting(true);
     try {
-      await register(email, password);
-      setMessage('Account creato con successo. Ora puoi effettuare il login.');
+      const resp = await register(email, password);
+      const recoveryCode = resp.recoveryCode;
+      setMessage('Account creato con successo. Scarica il codice di recupero e conservalo in sicurezza.');
+
+      // trigger recovery PDF download from server
+      try {
+        const url = `/api/auth/recovery-pdf?email=${encodeURIComponent(email)}&code=${encodeURIComponent(recoveryCode)}`;
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `recovery-${email}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } catch (e) {
+        console.error('Failed to download recovery PDF', e);
+      }
+
       setTimeout(() => navigate('/login'), 1200);
     } catch (registerError) {
       setError(registerError?.response?.data?.error || 'Registrazione non riuscita.');

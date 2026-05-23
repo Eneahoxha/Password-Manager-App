@@ -17,4 +17,12 @@ const env = {
   BCRYPT_SALT_ROUNDS: Number(process.env.BCRYPT_SALT_ROUNDS || 12)
 };
 
+// optional SMTP/email settings
+env.SMTP_HOST = process.env.SMTP_HOST || '';
+env.SMTP_PORT = process.env.SMTP_PORT || '';
+env.SMTP_USER = process.env.SMTP_USER || '';
+env.SMTP_PASS = process.env.SMTP_PASS || '';
+env.SMTP_SECURE = process.env.SMTP_SECURE || 'false';
+env.EMAIL_FROM = process.env.EMAIL_FROM || 'no-reply@securevault.local';
+
 module.exports = { env };

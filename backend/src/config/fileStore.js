@@ -1,10 +1,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const defaultFilePath = process.env.SECUREVAULT_DATA_FILE || path.join(__dirname, '..', '..', 'data', 'securevault.json');
-
 function getFilePath() {
-  return defaultFilePath;
+  return process.env.SECUREVAULT_DATA_FILE || path.join(__dirname, '..', '..', 'data', 'securevault.json');
 }
 
 function ensureStore() {
@@ -16,7 +14,7 @@ function ensureStore() {
   }
 
   if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, JSON.stringify({ users: [], vaultEntries: [], refreshTokens: [] }, null, 2));
+    fs.writeFileSync(filePath, JSON.stringify({ users: [], vaultEntries: [], refreshTokens: [], auditEvents: [] }, null, 2));
   }
 
   return filePath;

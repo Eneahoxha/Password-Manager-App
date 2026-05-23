@@ -12,10 +12,18 @@ model User {
   id            String         @id @default(uuid())
   email         String         @unique
   passwordHash  String         @map("password_hash")
+  emailVerified Boolean        @default(false) @map("email_verified")
+  recoveryCodeHash String?     @map("recovery_code_hash")
+  recoveryCodeCreatedAt DateTime? @map("recovery_code_created_at")
+  emailVerificationTokenHash String? @map("email_verification_token_hash")
+  emailVerificationSentAt DateTime? @map("email_verification_sent_at")
+  forgotOtpHash String?       @map("forgot_otp_hash")
+  forgotOtpCreatedAt DateTime? @map("forgot_otp_created_at")
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
   vaultEntries  VaultEntry[]
   refreshTokens RefreshToken[]
+  auditEvents   AuditEvent[]
 
   @@map("users")
 }
@@ -45,4 +53,19 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+model AuditEvent {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  email     String?  @map("email")
+  eventType String   @map("event_type")
+  outcome   String   @map("outcome")
+  metadata  Json?    @map("metadata")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([eventType])
+  @@map("audit_events")
 }
