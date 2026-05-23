@@ -13,6 +13,7 @@ services:
       JWT_REFRESH_SECRET: dev-secret-refresh
       BCRYPT_SALT_ROUNDS: 12
       DATABASE_URL: postgresql://securevault:securevault@db:5432/securevault
+      PRISMA_QUERY_ENGINE_LIBRARY: /app/node_modules/.prisma/client/libquery_engine-debian-openssl-3.0.x.so.node
     volumes:
       - ./backend:/app
       - /app/node_modules

@@ -206,6 +206,12 @@ a {
   gap: 20px;
 }
 
+.auth-card--register {
+  justify-content: flex-start;
+  padding-top: 34px;
+  padding-bottom: 30px;
+}
+
 .auth-card h2, .dashboard-header h2 {
   margin: 0;
   font-size: clamp(1.9rem, 2vw, 2.5rem);
@@ -256,6 +262,10 @@ a {
   align-items: center;
   justify-content: center;
   gap: 10px;
+}
+
+.button.full-width {
+  width: 100%;
 }
 
 .button:hover {
@@ -438,6 +448,28 @@ a {
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.78);
   border: 1px solid rgba(18, 24, 38, 0.08);
+}
+
+.register-requirements {
+  padding: 20px 20px 16px;
+}
+
+.register-requirements__title {
+  margin-bottom: 12px;
+}
+
+.register-requirements__list {
+  display: grid;
+  gap: 10px;
+}
+
+.register-requirements__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 0.96rem;
 }
 
 .stat-grid {
