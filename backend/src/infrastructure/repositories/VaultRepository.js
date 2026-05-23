@@ -18,6 +18,7 @@ class VaultRepository {
       id: randomUUID(),
       userId,
       siteName: data.siteName,
+      logoUrl: data.logoUrl || null,
       encryptedPayload: data.encryptedPayload,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -40,6 +41,7 @@ class VaultRepository {
     const updatedEntry = {
       ...entry,
       siteName: data.siteName ?? entry.siteName,
+      logoUrl: data.logoUrl ?? entry.logoUrl ?? null,
       encryptedPayload: data.encryptedPayload ?? entry.encryptedPayload,
       updatedAt: new Date().toISOString()
     };

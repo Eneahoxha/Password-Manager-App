@@ -8,6 +8,7 @@ import Dialog from '../components/ui/Dialog';
 import Sheet from '../components/ui/Sheet';
 import Skeleton from '../components/ui/Skeleton';
 import Tooltip from '../components/ui/Tooltip';
+import BrandAvatar from '../components/ui/BrandAvatar';
 import VaultList from '../components/vault/VaultList';
 import VaultForm from '../components/vault/VaultForm';
 import Alert from '../components/ui/Alert';
@@ -83,15 +84,19 @@ export default function DashboardPage() {
       masterPassword
     );
 
+    const logoUrl = payload.logoUrl || null;
+
     if (editingEntry) {
       const response = await api.put(`/vault/${editingEntry.id}`, {
         siteName: payload.siteName,
+        logoUrl,
         encryptedPayload
       });
       setEntries((currentEntries) => currentEntries.map((entry) => entry.id === editingEntry.id ? response.data.entry : entry));
     } else {
       const response = await api.post('/vault', {
         siteName: payload.siteName,
+        logoUrl,
         encryptedPayload
       });
       setEntries((currentEntries) => [response.data.entry, ...currentEntries]);
@@ -278,6 +283,14 @@ export default function DashboardPage() {
       >
         {detailsEntry ? (
           <div className="detail-grid">
+            <div className="detail-hero">
+              <BrandAvatar siteName={detailsEntry.siteName} logoUrl={detailsEntry.logoUrl} size={64} className="detail-avatar" />
+              <div>
+                <span className="mock-subtitle">Pagina salvata</span>
+                <strong>{detailsEntry.siteName}</strong>
+                <p className="hint" style={{ marginTop: 6 }}>{detailsEntry.url || 'Logo rilevato automaticamente dal link'}</p>
+              </div>
+            </div>
             <div className="detail-field"><span className="mock-subtitle">Username</span><strong>{detailsEntry.username || 'Nessuno'}</strong></div>
             <div className="detail-field"><span className="mock-subtitle">URL</span><strong>{detailsEntry.url || 'Non specificato'}</strong></div>
             <div className="detail-field"><span className="mock-subtitle">Password</span><div className="password-display">{detailVisible ? detailsEntry.password : '••••••••••••••••'}</div></div>

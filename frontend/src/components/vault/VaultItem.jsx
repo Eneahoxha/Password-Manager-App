@@ -1,11 +1,12 @@
 import { Copy, Pencil, Trash2 } from 'lucide-react';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
+import BrandAvatar from '../ui/BrandAvatar';
 
 export default function VaultItem({ entry, onView, onEdit, onDelete }) {
   return (
     <div className="vault-item">
-      <div className="mock-icon">{entry.siteName.slice(0, 1).toUpperCase()}</div>
+      <BrandAvatar siteName={entry.siteName} logoUrl={entry.logoUrl} size={48} />
       <div className="vault-meta">
         <strong>{entry.siteName}</strong>
         <span>Voce nel vault · {new Date(entry.updatedAt).toLocaleDateString('it-IT')}</span>

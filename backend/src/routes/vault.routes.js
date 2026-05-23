@@ -19,7 +19,7 @@ router.use(authenticate);
 router.get('/', async (req, res, next) => {
   try {
     const entries = await vaultService.list(req.userId);
-    res.json({ entries: entries.map(({ id, siteName, createdAt, updatedAt }) => ({ id, siteName, createdAt, updatedAt })) });
+    res.json({ entries: entries.map(({ id, siteName, logoUrl, createdAt, updatedAt }) => ({ id, siteName, logoUrl, createdAt, updatedAt })) });
   } catch (error) {
     next(error);
   }

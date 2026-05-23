@@ -15,11 +15,13 @@ test('persists vault entries and isolates users', async () => {
 
   const firstEntry = await repository.create('user-1', {
     siteName: 'GitHub',
+    logoUrl: 'https://logo.clearbit.com/github.com',
     encryptedPayload: 'payload-1'
   });
 
   await repository.create('user-2', {
     siteName: 'Google',
+    logoUrl: 'https://logo.clearbit.com/google.com',
     encryptedPayload: 'payload-2'
   });
 
@@ -31,6 +33,7 @@ test('persists vault entries and isolates users', async () => {
 
   const updated = await repository.update(firstEntry.id, 'user-1', {
     siteName: 'GitHub Updated',
+    logoUrl: 'https://logo.clearbit.com/github.com',
     encryptedPayload: 'payload-updated'
   });
 
