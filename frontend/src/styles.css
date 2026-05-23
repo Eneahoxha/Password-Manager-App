@@ -206,6 +206,12 @@ a {
   gap: 20px;
 }
 
+.auth-card--login {
+  justify-content: flex-start;
+  padding-top: 34px;
+  padding-bottom: 30px;
+}
+
 .auth-card--register {
   justify-content: flex-start;
   padding-top: 34px;
@@ -348,7 +354,7 @@ a {
   overflow: hidden;
   width: min(1240px, 100%);
   margin: 0 auto;
-  padding: 28px;
+  padding: 26px;
 }
 
 .dashboard-header {

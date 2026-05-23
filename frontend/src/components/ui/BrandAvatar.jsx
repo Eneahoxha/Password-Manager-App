@@ -1,15 +1,24 @@
 import { useEffect, useState } from 'react';
-import { getBrandInitials } from '../../services/brandAssets';
+import { getBrandInitials, getBrandLogoCandidates } from '../../services/brandAssets';
 
 export default function BrandAvatar({ siteName, url, logoUrl, size = 48, className = '' }) {
-  const [failed, setFailed] = useState(false);
+  const [candidateIndex, setCandidateIndex] = useState(0);
 
   useEffect(() => {
-    setFailed(false);
+    setCandidateIndex(0);
   }, [logoUrl, siteName, url]);
 
-  const showImage = Boolean(logoUrl) && !failed;
+  const candidates = logoUrl ? [logoUrl] : getBrandLogoCandidates({ siteName, url });
+  const activeLogo = candidates[candidateIndex] || '';
+  const showImage = Boolean(activeLogo);
   const initials = getBrandInitials({ siteName, url });
+
+  function handleImageError() {
+    setCandidateIndex((current) => {
+      const next = current + 1;
+      return next < candidates.length ? next : current;
+    });
+  }
 
   return (
     <div
@@ -18,7 +27,7 @@ export default function BrandAvatar({ siteName, url, logoUrl, size = 48, classNa
       aria-hidden="true"
     >
       {showImage ? (
-        <img src={logoUrl} alt="" onError={() => setFailed(true)} />
+        <img src={activeLogo} alt="" onError={handleImageError} />
       ) : (
         <span>{initials}</span>
       )}

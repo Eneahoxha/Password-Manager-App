@@ -76,7 +76,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <Card className="auth-card">
+        <Card className="auth-card auth-card--login">
           <CardHeader>
             <div className="status-row"><span className="badge"><LockKeyhole size={14} /> Accesso</span></div>
             <h2>Accedi al tuo vault</h2>

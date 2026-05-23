@@ -11,13 +11,21 @@ function normalizeHost(input) {
   }
 }
 
-export function getBrandLogoUrl({ url, siteName } = {}) {
+export function getBrandLogoCandidates({ url, siteName } = {}) {
   const host = normalizeHost(url) || normalizeHost(siteName);
   if (!host) {
-    return '';
+    return [];
   }
 
-  return `https://logo.clearbit.com/${host}`;
+  return [
+    `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=128`,
+    `https://logo.clearbit.com/${host}`,
+    `https://${host}/favicon.ico`
+  ];
+}
+
+export function getBrandLogoUrl({ url, siteName } = {}) {
+  return getBrandLogoCandidates({ url, siteName })[0] || '';
 }
 
 export function getBrandInitials({ url, siteName } = {}) {
