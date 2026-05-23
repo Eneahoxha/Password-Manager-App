@@ -1,24 +1,29 @@
-const { state } = require('../../config/database');
+const { randomUUID } = require('node:crypto');
+const { readStore, writeStore } = require('../../config/fileStore');
 
 class UserRepository {
   async findByEmail(email) {
-    return state.users.find((user) => user.email === email) || null;
+    const store = readStore();
+    return store.users.find((user) => user.email === email) || null;
   }
 
   async findById(id) {
-    return state.users.find((user) => user.id === id) || null;
+    const store = readStore();
+    return store.users.find((user) => user.id === id) || null;
   }
 
   async create(data) {
+    const store = readStore();
     const user = {
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       email: data.email,
       passwordHash: data.passwordHash,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
-    state.users.push(user);
+    store.users.push(user);
+    writeStore(store);
     return user;
   }
 }

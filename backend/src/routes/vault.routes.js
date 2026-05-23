@@ -5,7 +5,14 @@ const { vaultSchema } = require('../schemas/vault.schema');
 const VaultService = require('../core/vault/VaultService');
 
 const router = express.Router();
-const vaultService = new VaultService();
+
+let vaultService;
+if (process.env.DATABASE_URL) {
+  const PrismaVaultRepository = require('../infrastructure/repositories/PrismaVaultRepository');
+  vaultService = new VaultService(new PrismaVaultRepository());
+} else {
+  vaultService = new VaultService();
+}
 
 router.use(authenticate);
 

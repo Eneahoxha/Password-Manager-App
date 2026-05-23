@@ -1,9 +1,11 @@
-const { state } = require('../../config/database');
+const { randomUUID } = require('node:crypto');
+const { readStore, writeStore } = require('../../config/fileStore');
 
 class TokenRepository {
   async createRefreshToken(userId, tokenHash, expiresAt) {
+    const store = readStore();
     const token = {
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       userId,
       tokenHash,
       expiresAt,
@@ -11,27 +13,39 @@ class TokenRepository {
       createdAt: new Date().toISOString()
     };
 
-    state.refreshTokens.push(token);
+    store.refreshTokens.push(token);
+    writeStore(store);
     return token;
   }
 
   async findRefreshToken(tokenHash) {
-    return state.refreshTokens.find((token) => token.tokenHash === tokenHash) || null;
+    const store = readStore();
+    return store.refreshTokens.find((token) => token.tokenHash === tokenHash) || null;
   }
 
   async revokeRefreshToken(id) {
-    const token = state.refreshTokens.find((item) => item.id === id);
+    const store = readStore();
+    const token = store.refreshTokens.find((item) => item.id === id);
     if (token) {
       token.revoked = true;
+      writeStore(store);
     }
     return token;
   }
 
   async revokeAllUserTokens(userId) {
-    for (const token of state.refreshTokens) {
+    const store = readStore();
+    let changed = false;
+
+    for (const token of store.refreshTokens) {
       if (token.userId === userId) {
         token.revoked = true;
+        changed = true;
       }
+    }
+
+    if (changed) {
+      writeStore(store);
     }
   }
 }

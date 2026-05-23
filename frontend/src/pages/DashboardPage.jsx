@@ -15,7 +15,7 @@ import api from '../services/api';
 import { decryptPayload, encryptPayload } from '../services/cryptoService';
 
 export default function DashboardPage() {
-  const { user, masterPassword, logout } = useAuth();
+  const { user, masterPassword, setMasterPassword, logout } = useAuth();
   const [entries, setEntries] = useState([]);
   const [query, setQuery] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -26,6 +26,8 @@ export default function DashboardPage() {
   const [copied, setCopied] = useState(false);
   const [isVaultLoading, setIsVaultLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
+  const [unlockPassword, setUnlockPassword] = useState('');
+  const [unlockError, setUnlockError] = useState('');
 
   useEffect(() => {
     let alive = true;
@@ -58,6 +60,7 @@ export default function DashboardPage() {
   }, []);
 
   const filteredEntries = useMemo(() => entries.filter((entry) => entry.siteName.toLowerCase().includes(query.toLowerCase())), [entries, query]);
+  const vaultLocked = !masterPassword;
 
   function openCreate() {
     setEditingEntry(null);
@@ -65,6 +68,11 @@ export default function DashboardPage() {
   }
 
   async function handleSave(payload) {
+    if (!masterPassword) {
+      setUnlockError('Sblocca il vault con la master password prima di salvare una voce.');
+      return;
+    }
+
     const encryptedPayload = await encryptPayload(
       {
         username: payload.username,
@@ -106,9 +114,27 @@ export default function DashboardPage() {
   }
 
   async function handleView(entry) {
+    if (!masterPassword) {
+      setUnlockError('Inserisci prima la master password per visualizzare i dettagli cifrati.');
+      return;
+    }
+
     const response = await api.get(`/vault/${entry.id}`);
     const decrypted = await decryptPayload(response.data.entry.encryptedPayload, masterPassword);
     setDetailsEntry({ ...response.data.entry, ...decrypted });
+  }
+
+  function handleUnlock(event) {
+    event.preventDefault();
+
+    if (!unlockPassword) {
+      setUnlockError('Inserisci la master password.');
+      return;
+    }
+
+    setMasterPassword(unlockPassword);
+    setUnlockPassword('');
+    setUnlockError('');
   }
 
   return (
@@ -122,17 +148,44 @@ export default function DashboardPage() {
             </div>
             <h2>Your Password Vault</h2>
             <p>Gestione credenziali con ricerca veloce, dettagli protetti e generatori integrati.</p>
+            <div className="status-row">
+              <Badge>Persistenza attiva</Badge>
+              <Badge muted>{vaultLocked ? 'Vault bloccato' : 'Vault sbloccato'}</Badge>
+            </div>
           </div>
           <div className="status-row">
             <Button variant="secondary" onClick={logout}><LogOut size={16} /> Logout</Button>
           </div>
         </div>
 
+        {vaultLocked ? (
+          <div className="mini-panel" style={{ marginBottom: 18 }}>
+            <div className="status-row" style={{ justifyContent: 'space-between', marginBottom: 10 }}>
+              <strong>Sblocca vault</strong>
+              <Badge muted>sessione attiva</Badge>
+            </div>
+            <p className="hint" style={{ marginBottom: 14 }}>
+              La sessione è ancora valida, ma per decifrare, creare o modificare voci serve la master password locale.
+            </p>
+            <form className="password-row" onSubmit={handleUnlock}>
+              <Input
+                type="password"
+                value={unlockPassword}
+                onChange={(event) => setUnlockPassword(event.target.value)}
+                placeholder="Inserisci master password"
+                style={{ flex: 1, minWidth: 220 }}
+              />
+              <Button type="submit" variant="primary">Sblocca</Button>
+            </form>
+            {unlockError ? <div style={{ marginTop: 12 }}><Alert variant="destructive">{unlockError}</Alert></div> : null}
+          </div>
+        ) : null}
+
         <div className="toolbar">
           <div className="field">
             <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cerca un sito, un account o una nota" />
           </div>
-          <Button variant="primary" onClick={openCreate}><Plus size={16} /> Aggiungi</Button>
+          <Button variant="primary" onClick={openCreate} disabled={vaultLocked}><Plus size={16} /> Aggiungi</Button>
         </div>
 
         <div className="content-grid">
@@ -156,10 +209,20 @@ export default function DashboardPage() {
                 entries={filteredEntries}
                 onView={handleView}
                 onEdit={(entry) => {
+                  if (vaultLocked) {
+                    setUnlockError('Sblocca il vault prima di modificare una voce.');
+                    return;
+                  }
                   setEditingEntry(entry);
                   setDrawerOpen(true);
                 }}
-                onDelete={setDeleteEntry}
+                onDelete={(entry) => {
+                  if (vaultLocked) {
+                    setUnlockError('Sblocca il vault prima di eliminare una voce.');
+                    return;
+                  }
+                  setDeleteEntry(entry);
+                }}
               />
             )}
           </div>

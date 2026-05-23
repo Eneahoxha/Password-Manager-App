@@ -7,7 +7,15 @@ const { env } = require('../config/environment');
 const { hashToken } = require('../core/auth/TokenService');
 
 const router = express.Router();
-const authService = new AuthService();
+
+let authService;
+if (process.env.DATABASE_URL) {
+  const PrismaUserRepository = require('../infrastructure/repositories/PrismaUserRepository');
+  const PrismaTokenRepository = require('../infrastructure/repositories/PrismaTokenRepository');
+  authService = new AuthService(new PrismaUserRepository(), new PrismaTokenRepository());
+} else {
+  authService = new AuthService();
+}
 
 function setAuthCookies(res, accessToken, refreshToken) {
   res.cookie('accessToken', accessToken, {

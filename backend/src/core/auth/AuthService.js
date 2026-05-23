@@ -13,6 +13,10 @@ function hashPassword(password) {
 function verifyPassword(password, storedHash) {
   const [salt, hash] = storedHash.split('.');
   const derived = crypto.pbkdf2Sync(password, salt, 120000, 64, 'sha256').toString('hex');
+  if (hash.length !== derived.length) {
+    return false;
+  }
+
   return crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(derived));
 }
 
